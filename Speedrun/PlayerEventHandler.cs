@@ -33,11 +33,11 @@ namespace Speedrun
                     }
                     else if (ev.Player.TeamRole.Role == Role.FACILITY_GUARD)
                     {
-                        foreach (var item in ev.Player.GetInventory())
+                        foreach (var item in ev.Items.ToArray())
                         {
-                            if (item.ItemType == ItemType.GUARD_KEYCARD)
+                            if (item == ItemType.GUARD_KEYCARD)
                             {
-                                item.Remove();
+                                ev.Items.Remove(item);
                             }
                         }
                         ev.Items.Add(ItemType.MTF_COMMANDER_KEYCARD);
