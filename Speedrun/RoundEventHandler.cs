@@ -79,27 +79,32 @@ namespace Speedrun
 
         public void OnCheckRoundEnd(CheckRoundEndEvent ev)
         {
-            ev.Status = ROUND_END_STATUS.ON_GOING;
-            bool classDAlive = false;
-            bool mtfAlive = false;
-            foreach (var player in ev.Server.GetPlayers())
+            if (plugin.activated)
             {
-                if (player.TeamRole.Team == Team.SPECTATOR) continue;
+                ev.Status = ROUND_END_STATUS.ON_GOING;
+                bool classDAlive = false;
+                bool mtfAlive = false;
+                foreach (var player in ev.Server.GetPlayers())
+                {
+                    if (player.TeamRole.Team == Team.SPECTATOR) continue;
 
-                if (player.TeamRole.Team == Team.NINETAILFOX) mtfAlive = true;
+                    if (player.TeamRole.Team == Team.NINETAILFOX) mtfAlive = true;
 
-                if (player.TeamRole.Team == Team.CLASSD || player.TeamRole.Team == Team.CHAOS_INSURGENCY) classDAlive = true;
-            }
+                    if (player.TeamRole.Team == Team.CLASSD || player.TeamRole.Team == Team.CHAOS_INSURGENCY) classDAlive = true;
+                }
 
-            if (!classDAlive && !mtfAlive)
-            {
-                ev.Status = ROUND_END_STATUS.NO_VICTORY;
-            } else if (classDAlive && !mtfAlive)
-            {
-                ev.Status = ROUND_END_STATUS.CI_VICTORY;
-            } else if (!classDAlive && mtfAlive)
-            {
-                ev.Status = ROUND_END_STATUS.MTF_VICTORY;
+                if (!classDAlive && !mtfAlive)
+                {
+                    ev.Status = ROUND_END_STATUS.NO_VICTORY;
+                }
+                else if (classDAlive && !mtfAlive)
+                {
+                    ev.Status = ROUND_END_STATUS.CI_VICTORY;
+                }
+                else if (!classDAlive && mtfAlive)
+                {
+                    ev.Status = ROUND_END_STATUS.MTF_VICTORY;
+                }
             }
         }
     }
