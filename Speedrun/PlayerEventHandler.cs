@@ -8,32 +8,26 @@ namespace Speedrun
     partial class SpeedrunEventHandler : IEventHandlerSetRole
     {
         private bool alreadyAssignedLeader = false;
+        private bool ignoreOne = false; // used as a fix for the double setrole event
 
         public void OnSetRole(PlayerSetRoleEvent ev)
         {
             if (plugin.activated)
             {
-                var itemAssignmentTimer = new Timer
-                {
-                    AutoReset = false,
-                    Enabled = true,
-                    Interval = 100 // .1 seconds
-                };
-
-                itemAssignmentTimer.Elapsed += delegate
+                if (ignoreOne)
                 {
                     if (ev.Player.TeamRole.Role == Role.CLASSD)
                     {
                         if (!alreadyAssignedLeader)
                         {
-                            ev.Player.GiveItem(ItemType.JANITOR_KEYCARD);
-                            ev.Player.GiveItem(ItemType.E11_STANDARD_RIFLE);
+                            ev.Items.Add(ItemType.JANITOR_KEYCARD);
+                            ev.Items.Add(ItemType.E11_STANDARD_RIFLE);
                             alreadyAssignedLeader = true;
                             plugin.Debug(ev.Player.Name + " is Class-D leader.");
                         }
                         else
                         {
-                            ev.Player.GiveItem(ItemType.COM15);
+                            ev.Items.Add(ItemType.COM15);
                         }
                         plugin.Debug("Assigned items for " + ev.Player.Name + ".");
                     }
@@ -46,14 +40,17 @@ namespace Speedrun
                                 item.Remove();
                             }
                         }
-                        ev.Player.GiveItem(ItemType.MTF_COMMANDER_KEYCARD);
+                        ev.Items.Add(ItemType.MTF_COMMANDER_KEYCARD);
                         plugin.Debug("Assigned items for " + ev.Player.Name + ".");
                     }
                     else
                     {
                         plugin.Debug("Nothing to assign for " + ev.Player.Name + ".");
                     }
-                };
+                } else
+                {
+                    ignoreOne = true;
+                }
             }
         }
     }

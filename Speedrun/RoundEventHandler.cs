@@ -1,10 +1,11 @@
-﻿using Smod2.Events;
+﻿using Smod2.API;
+using Smod2.Events;
 using Smod2.EventHandlers;
 using System.Timers;
 
 namespace Speedrun
 {
-    partial class SpeedrunEventHandler : IEventHandlerRoundRestart, IEventHandlerRoundStart
+    partial class SpeedrunEventHandler : IEventHandlerRoundRestart, IEventHandlerRoundStart, IEventHandlerCheckRoundEnd
     {
         private bool warheadDetonated = false;
 
@@ -24,6 +25,7 @@ namespace Speedrun
             alreadyAssignedLeader = false;
             alreadyDClass = false;
             warheadDetonated = false;
+            ignoreOne = false;
         }
 
         public void OnRoundStart(RoundStartEvent ev)
@@ -72,6 +74,32 @@ namespace Speedrun
                         };
                     }
                 };
+            }
+        }
+
+        public void OnCheckRoundEnd(CheckRoundEndEvent ev)
+        {
+            ev.Status = ROUND_END_STATUS.ON_GOING;
+            bool classDAlive = false;
+            bool mtfAlive = false;
+            foreach (var player in ev.Server.GetPlayers())
+            {
+                if (player.TeamRole.Team == Team.SPECTATOR) continue;
+
+                if (player.TeamRole.Team == Team.NINETAILFOX) mtfAlive = true;
+
+                if (player.TeamRole.Team == Team.CLASSD || player.TeamRole.Team == Team.CHAOS_INSURGENCY) classDAlive = true;
+            }
+
+            if (!classDAlive && !mtfAlive)
+            {
+                ev.Status = ROUND_END_STATUS.NO_VICTORY;
+            } else if (classDAlive && !mtfAlive)
+            {
+                ev.Status = ROUND_END_STATUS.CI_VICTORY;
+            } else if (!classDAlive && mtfAlive)
+            {
+                ev.Status = ROUND_END_STATUS.MTF_VICTORY;
             }
         }
     }
