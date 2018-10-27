@@ -81,7 +81,6 @@ namespace Speedrun
         {
             if (plugin.activated)
             {
-                ev.Status = ROUND_END_STATUS.ON_GOING;
                 bool classDAlive = false;
                 bool mtfAlive = false;
                 foreach (var player in ev.Server.GetPlayers())
@@ -93,17 +92,23 @@ namespace Speedrun
                     if (player.TeamRole.Team == Team.CLASSD || player.TeamRole.Team == Team.CHAOS_INSURGENCY) classDAlive = true;
                 }
 
+                plugin.Debug("Class-D Alive: " + classDAlive);
+                plugin.Debug("MTF Alive: " + mtfAlive);
+
                 if (!classDAlive && !mtfAlive)
                 {
-                    ev.Status = ROUND_END_STATUS.NO_VICTORY;
+                    ev.Status = ROUND_END_STATUS.NO_VICTORY; // stalemate
                 }
                 else if (classDAlive && !mtfAlive)
                 {
-                    ev.Status = ROUND_END_STATUS.CI_VICTORY;
+                    ev.Status = ROUND_END_STATUS.CI_VICTORY; // class-d
                 }
                 else if (!classDAlive && mtfAlive)
                 {
-                    ev.Status = ROUND_END_STATUS.MTF_VICTORY;
+                    ev.Status = ROUND_END_STATUS.MTF_VICTORY; // mtf
+                } else
+                {
+                    ev.Status = ROUND_END_STATUS.ON_GOING; // still going
                 }
             }
         }
